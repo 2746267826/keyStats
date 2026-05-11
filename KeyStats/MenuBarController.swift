@@ -338,6 +338,8 @@ private struct MenuBarValueText: View {
 class MenuBarStatusView: NSView {
     private let viewModel = MenuBarStatusViewModel()
     private var hostingView: NSHostingView<MenuBarStatusSwiftUIView>?
+    private var currentKeysText: String = "0"
+    private var currentClicksText: String = "0"
 
     var onClick: (() -> Void)?
     var onRightClick: (() -> Void)?
@@ -369,14 +371,26 @@ class MenuBarStatusView: NSView {
     }
 
     override var intrinsicContentSize: NSSize {
+        let hasText = !currentKeysText.isEmpty || !currentClicksText.isEmpty
+        let horizontalPadding: CGFloat = hasText ? 12 : 8
+        let iconWidth: CGFloat = 18
+        let iconTextSpacing: CGFloat = hasText ? 4 : 0
+        let textWidth = max(
+            Self.valueWidth(for: currentKeysText, weight: .semibold),
+            Self.valueWidth(for: currentClicksText, weight: .medium)
+        )
+        let width = ceil(horizontalPadding + iconWidth + iconTextSpacing + textWidth + 1)
+
         if let hostingView = hostingView {
-            return hostingView.fittingSize
+            return NSSize(width: width, height: max(hostingView.fittingSize.height, 20))
         }
-        return NSSize(width: 24, height: 20)
+        return NSSize(width: width, height: 20)
     }
 
     func update(keysText: String, clicksText: String) {
         let updateBlock = {
+            self.currentKeysText = keysText
+            self.currentClicksText = clicksText
             self.viewModel.keysText = keysText
             self.viewModel.clicksText = clicksText
         }
@@ -392,6 +406,12 @@ class MenuBarStatusView: NSView {
         invalidateIntrinsicContentSize()
         hostingView?.invalidateIntrinsicContentSize()
         needsLayout = true
+    }
+
+    private static func valueWidth(for text: String, weight: NSFont.Weight) -> CGFloat {
+        guard !text.isEmpty else { return 0 }
+        let font = NSFont.monospacedDigitSystemFont(ofSize: 10, weight: weight)
+        return (text as NSString).size(withAttributes: [.font: font]).width
     }
 
     func updateIconColor(_ color: NSColor?, style: DynamicIconColorStyle) {
