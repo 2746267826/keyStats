@@ -48,6 +48,10 @@ scoop install keystats
 
 > **No dependencies required**: The Windows version uses .NET Framework 4.8, which is pre-installed on Windows 10 (1903+) and Windows 11 - ready to use out of the box. If your Windows 10 version is older (before 1903), you can upgrade your system or [manually install .NET Framework 4.8](https://dotnet.microsoft.com/download/dotnet-framework/net48).
 
+### Linux
+
+[Download the Linux version](https://github.com/0x5c0f/keyStats/releases)
+
 ## Features
 
 - **Keyboard Keystroke Statistics**: Real-time tracking of daily key presses
@@ -97,144 +101,6 @@ KeyStats requires **Accessibility permissions** to monitor keyboard and mouse ev
 The Windows version **requires no additional permission setup**. The app will automatically start tracking once launched.
 
 > **Note**: On first launch, Windows may show a security warning. Click "Run anyway" to proceed.
-
-## Usage Instructions
-
-### Menu Bar Display
-
-Once the app is running, the menu bar will show:
-
-```
-123
-45
-```
-
-- The upper number represents total keyboard presses today
-- The lower number represents total mouse clicks today (including left and right buttons)
-
-Large numbers are automatically formatted:
-- 1,000+ displayed as `1.0K`
-- 1,000,000+ displayed as `1.0M`
-
-### Detailed Panel
-
-Clicking the menu bar icon opens the detailed statistics panel, showing:
-
-| Statistic | Description |
-|-----------|-------------|
-| Keyboard Strokes | Total key presses today |
-| Left Clicks | Mouse left button clicks |
-| Right Clicks | Mouse right button clicks |
-| Mouse Movement | Total distance of mouse movement |
-| Scroll Distance | Cumulative page scroll distance |
-
-### Action Buttons
-
-- **Reset Statistics**: Manually clear all statistics for today
-- **Quit Application**: Close KeyStats
-
-### Import & Export (Multi-device Sync)
-
-You can sync statistics across devices using JSON export/import.
-
-1. On device A, open Settings, click `Export Data`, and save the `.json` file.
-2. On device B, open Settings, click `Import Data`, and choose that file.
-3. Choose import mode:
-   - `Overwrite Existing Data`: Replace local statistics with imported data.
-   - `Merge and Add`: Merge imported data with local data and add totals by date.
-4. To combine both devices into B: export from A, then import on B with `Merge and Add`.
-5. Then export again from B, go back to A, and import with `Overwrite Existing Data` to make A and B consistent.
-
-Tips:
-- Export local data first as a backup before using overwrite.
-- Importing the same file with merge multiple times will add duplicate totals.
-
-## Project Structure
-
-### macOS
-
-```
-KeyStats/
-├── KeyStats.xcodeproj/     # Xcode project files
-├── KeyStats/
-│   ├── AppDelegate.swift           # Application entry point, permission management
-│   ├── InputMonitor.swift          # Input event monitor
-│   ├── StatsManager.swift          # Statistics data manager
-│   ├── MenuBarController.swift     # Menu bar controller
-│   ├── StatsPopoverViewController.swift  # Detailed panel view
-│   ├── Info.plist                  # Application configuration
-│   ├── KeyStats.entitlements       # Permission configuration
-│   ├── Main.storyboard             # Main interface
-│   └── Assets.xcassets/            # Resource files
-└── README.md
-```
-
-### Windows
-
-```
-KeyStats.Windows/
-├── KeyStats.sln                    # Visual Studio solution file
-├── KeyStats/
-│   ├── App.xaml                    # Application entry definition
-│   ├── App.xaml.cs                 # Application entry logic
-│   ├── Services/
-│   │   ├── InputMonitorService.cs  # Input event monitor service
-│   │   ├── StatsManager.cs         # Statistics data manager
-│   │   ├── NotificationService.cs  # Notification service
-│   │   └── StartupManager.cs       # Startup management
-│   ├── ViewModels/
-│   │   ├── TrayIconViewModel.cs    # Tray icon view model
-│   │   └── StatsPopupViewModel.cs  # Stats popup view model
-│   ├── Views/
-│   │   └── StatsPopupWindow.xaml   # Stats popup window
-│   ├── Models/                     # Data models
-│   ├── Helpers/                    # Utility classes
-│   └── Resources/                  # Resource files
-└── build.ps1                       # Build script
-```
-
-## Technical Implementation
-
-### macOS
-
-- **Language**: Swift 5.0
-- **Frameworks**: AppKit, CoreGraphics
-- **Event Monitoring**: Global event listener using `CGEvent.tapCreate`
-- **Data Storage**: Local persistence using `UserDefaults`
-- **UI Mode**: Pure menu bar application (LSUIElement = true)
-
-### Windows
-
-- **Language**: C# 10
-- **Framework**: WPF (.NET Framework 4.8)
-- **Architecture**: MVVM (Model-View-ViewModel)
-- **Event Monitoring**: Windows low-level keyboard/mouse hooks (SetWindowsHookEx)
-- **Data Storage**: Local persistence using JSON files
-- **UI Mode**: System tray application
-- **Advantages**: No runtime installation required, ready to use on Windows 10/11 out of the box, small app size (5-10 MB)
-
-
-## Testing (AppStats)
-
-To make `KeyStats/AppStats.swift` regression-testable, the repository includes XCTest-based tests in `KeyStatsTests/AppStatsTests.swift`, executed with `swift test`.
-
-Covered test cases:
-
-1. Default initialization values.
-2. Counter accumulation for key/click recording methods.
-3. Absolute-value behavior of `addScrollDistance(_:)`.
-4. Empty-name guard in `updateDisplayName("")`.
-5. Normal display name update.
-6. Codable round-trip consistency.
-7. Legacy `otherClicks` compatibility fallback.
-8. New side-click fields taking precedence over legacy field.
-9. Missing-field decode fallback to defaults.
-
-Run:
-
-```bash
-swift test
-```
 
 ## Privacy Statement
 
