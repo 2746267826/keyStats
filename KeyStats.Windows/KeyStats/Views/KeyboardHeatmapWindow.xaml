@@ -4,12 +4,11 @@
         xmlns:controls="clr-namespace:KeyStats.Views.Controls"
         xmlns:p="clr-namespace:KeyStats.Properties"
         Title="{x:Static p:Strings.Heatmap_WindowTitle}"
-        Width="860"
+        Width="1080"
         Height="460"
         MinWidth="860"
         MinHeight="460"
-        MaxWidth="860"
-        MaxHeight="460"
+        ResizeMode="CanResize"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource WindowSurfaceBrush}"
         ShowInTaskbar="True">
@@ -221,7 +220,7 @@
                    PopupAnimation="Fade"
                    Closed="DatePickerPopup_Closed">
                 <Border Margin="0,6,0,0"
-                        Background="{DynamicResource CardBrush}"
+                        Background="{DynamicResource SurfaceBrush}"
                         BorderBrush="{DynamicResource DividerBrush}"
                         BorderThickness="1"
                         CornerRadius="10">
