@@ -13,6 +13,10 @@ KeyStats is a lightweight native menu bar application for macOS and Windows that
 
 <img width="320" height="581" alt="image" src="https://github.com/user-attachments/assets/b363093e-9aad-4d8a-8b12-1918ef843b3f" />
 
+<img width="1920" height="816" alt="image" src="https://github.com/user-attachments/assets/7f3e93bf-57de-415d-857f-7416efa67eda" />
+<img width="1304" height="966" alt="image" src="https://github.com/user-attachments/assets/79dd41e4-94fc-46ef-826d-160a4b75ad35" />
+
+
 
 ## Installation & Usage
 
