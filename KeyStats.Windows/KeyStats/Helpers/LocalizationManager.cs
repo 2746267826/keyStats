@@ -21,6 +21,7 @@ public static class LocalizationManager
         return preference switch
         {
             "zh-Hans" => new CultureInfo("zh-Hans"),
+            "zh-Hant" => new CultureInfo("zh-Hant"),
             "en"      => new CultureInfo("en"),
             _         => DetectFromSystem(),  // "system", null, or any unknown value
         };
@@ -29,14 +30,21 @@ public static class LocalizationManager
     private static CultureInfo DetectFromSystem()
     {
         var sys = CultureInfo.CurrentUICulture;
-        // Strict simplified Chinese only:
-        //   zh-CN, zh-Hans, zh-Hans-CN, zh → 中文
-        //   zh-TW, zh-HK, zh-Hant*, en-*, ja-*, etc. → English
+        // Chinese script detection:
+        //   zh-CN, zh-Hans, zh-Hans-CN, zh -> Simplified Chinese
+        //   zh-TW, zh-HK, zh-MO, zh-Hant* -> Traditional Chinese
         if (sys.Name.StartsWith("zh-Hans", StringComparison.OrdinalIgnoreCase) ||
             sys.Name.Equals("zh-CN", StringComparison.OrdinalIgnoreCase) ||
             sys.Name.Equals("zh", StringComparison.OrdinalIgnoreCase))
         {
             return new CultureInfo("zh-Hans");
+        }
+        if (sys.Name.StartsWith("zh-Hant", StringComparison.OrdinalIgnoreCase) ||
+            sys.Name.Equals("zh-TW", StringComparison.OrdinalIgnoreCase) ||
+            sys.Name.Equals("zh-HK", StringComparison.OrdinalIgnoreCase) ||
+            sys.Name.Equals("zh-MO", StringComparison.OrdinalIgnoreCase))
+        {
+            return new CultureInfo("zh-Hant");
         }
         return new CultureInfo("en");
     }

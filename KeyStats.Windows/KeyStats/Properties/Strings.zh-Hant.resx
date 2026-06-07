@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string"/>
+              <xsd:attribute name="type" type="xsd:string"/>
+              <xsd:attribute name="mimetype" type="xsd:string"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string"/>
+              <xsd:attribute name="name" type="xsd:string"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1"/>
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <data name="App_Name" xml:space="preserve"><value>KeyStats</value></data>
+  <data name="Common_Cancel" xml:space="preserve"><value>取消</value></data>
+  <data name="Common_Open" xml:space="preserve"><value>開啟</value></data>
+  <data name="Common_Import" xml:space="preserve"><value>匯入</value></data>
+  <data name="Common_Export" xml:space="preserve"><value>匯出</value></data>
+  <data name="Error_AppAlreadyRunning" xml:space="preserve"><value>KeyStats 已在執行中。</value></data>
+  <data name="Error_StartupFailedFormat" xml:space="preserve"><value>啟動錯誤：{0}</value></data>
+  <data name="Error_AppErrorTitle" xml:space="preserve"><value>KeyStats 錯誤</value></data>
+  <data name="Error_ImportInvalidFormat" xml:space="preserve"><value>資料格式無效。</value></data>
+  <data name="Error_ImportUnsupportedVersion" xml:space="preserve"><value>不支援的匯出版本。</value></data>
+  <data name="Error_ImportEmpty" xml:space="preserve"><value>所選檔案為空。</value></data>
+
+  <data name="Notif_ThresholdTitle" xml:space="preserve"><value>KeyStats 提醒</value></data>
+  <data name="Notif_KeyThresholdReachedFormat" xml:space="preserve"><value>今日按鍵數已達 {0:N0} 次。</value></data>
+  <data name="Notif_ClickThresholdReachedFormat" xml:space="preserve"><value>今日點擊數已達 {0:N0} 次。</value></data>
+
+  <data name="Tray_OpenMainWindow" xml:space="preserve"><value>開啟主視窗</value></data>
+  <data name="Tray_Settings" xml:space="preserve"><value>設定</value></data>
+  <data name="Tray_StartAtLogin" xml:space="preserve"><value>登入時啟動</value></data>
+  <data name="Tray_KeyHistory" xml:space="preserve"><value>按鍵歷史</value></data>
+  <data name="Tray_Quit" xml:space="preserve"><value>結束</value></data>
+
+  <data name="Toast_ExportSuccess_Title" xml:space="preserve"><value>匯出成功</value></data>
+  <data name="Toast_ExportSuccess_BodyFormat" xml:space="preserve"><value>資料已儲存至 {0}</value></data>
+  <data name="Toast_ExportFailed_Title" xml:space="preserve"><value>匯出失敗</value></data>
+  <data name="Toast_ExportFailed_BodyFormat" xml:space="preserve"><value>無法匯出資料：{0}</value></data>
+  <data name="Toast_ImportSuccess_Title" xml:space="preserve"><value>匯入成功</value></data>
+  <data name="Toast_ImportSuccess_BodyFormat" xml:space="preserve"><value>已透過 {0} 匯入統計資料：{1}</value></data>
+  <data name="Toast_ImportFailed_Title" xml:space="preserve"><value>匯入失敗</value></data>
+  <data name="Toast_ImportFailed_BodyFormat" xml:space="preserve"><value>無法匯入資料：{0}</value></data>
+  <data name="ImportMode_Overwrite" xml:space="preserve"><value>覆蓋</value></data>
+  <data name="ImportMode_Merge" xml:space="preserve"><value>合併</value></data>
+
+  <data name="Shortcut_Description" xml:space="preserve"><value>KeyStats</value></data>
+
+  <data name="Dialog_ExportTitle" xml:space="preserve"><value>匯出資料</value></data>
+  <data name="Dialog_ImportTitle" xml:space="preserve"><value>匯入資料</value></data>
+  <data name="Dialog_JsonFilter" xml:space="preserve"><value>JSON 檔案 (*.json)|*.json|所有檔案 (*.*)|*.*</value></data>
+
+  <data name="Settings_Language" xml:space="preserve"><value>語言</value></data>
+  <data name="Settings_LanguageDescription" xml:space="preserve"><value>應用程式介面的顯示語言</value></data>
+  <data name="Settings_Language_System" xml:space="preserve"><value>跟隨系統</value></data>
+  <data name="Language_RestartPromptTitle" xml:space="preserve"><value>需要重新啟動</value></data>
+  <data name="Language_RestartPromptMessage" xml:space="preserve"><value>KeyStats 需要重新啟動才能套用新的語言。要立即重新啟動嗎？</value></data>
+
+  <data name="Settings_WindowTitle" xml:space="preserve"><value>設定 - KeyStats</value></data>
+  <data name="Settings_HeaderTitle" xml:space="preserve"><value>設定</value></data>
+  <data name="Settings_HeaderSubtitle" xml:space="preserve"><value>在這裡管理匯入、匯出與通知設定</value></data>
+  <data name="Settings_GitHubTooltip" xml:space="preserve"><value>開啟 GitHub 儲存庫</value></data>
+  <data name="Settings_DataImportExport" xml:space="preserve"><value>資料匯入 / 匯出</value></data>
+  <data name="Settings_DataImportExportDesc" xml:space="preserve"><value>從 JSON 匯入或匯出統計資料</value></data>
+  <data name="Settings_Notifications" xml:space="preserve"><value>通知設定</value></data>
+  <data name="Settings_NotificationsDesc" xml:space="preserve"><value>設定按鍵/點擊門檻通知</value></data>
+  <data name="Settings_DistanceCalibration" xml:space="preserve"><value>距離校準</value></data>
+  <data name="Settings_DistanceCalibrationDesc" xml:space="preserve"><value>校準滑鼠移動距離係數</value></data>
+  <data name="Settings_VersionFormat" xml:space="preserve"><value>目前版本 {0}</value></data>
+  <data name="Settings_OpenGitHubFailedMessage" xml:space="preserve"><value>無法開啟 GitHub 頁面。</value></data>
+
+  <data name="Stats_TodayHeader" xml:space="preserve"><value>今日統計</value></data>
+  <data name="Stats_KeyPresses" xml:space="preserve"><value>按鍵次數</value></data>
+  <data name="Stats_MouseClicks" xml:space="preserve"><value>滑鼠點擊</value></data>
+  <data name="Stats_MouseClickDetail" xml:space="preserve"><value>點擊明細</value></data>
+  <data name="Click_Left" xml:space="preserve"><value>左鍵</value></data>
+  <data name="Click_Middle" xml:space="preserve"><value>中鍵</value></data>
+  <data name="Click_Right" xml:space="preserve"><value>右鍵</value></data>
+  <data name="Click_Back" xml:space="preserve"><value>返回</value></data>
+  <data name="Click_Forward" xml:space="preserve"><value>前進</value></data>
+  <data name="Stats_MouseDistance" xml:space="preserve"><value>滑鼠移動</value></data>
+  <data name="Stats_ScrollDistance" xml:space="preserve"><value>滾輪滾動</value></data>
+  <data name="Stats_KeyBreakdown" xml:space="preserve"><value>按鍵分佈</value></data>
+  <data name="KeyBreakdown_Empty" xml:space="preserve"><value>暫無按鍵資料</value></data>
+  <data name="Stats_KeyboardHeatmap" xml:space="preserve"><value>鍵盤熱力圖</value></data>
+  <data name="Stats_KeyHistory" xml:space="preserve"><value>按鍵歷史</value></data>
+  <data name="Stats_ActiveApps" xml:space="preserve"><value>活躍應用程式</value></data>
+  <data name="Stats_AppStatsDetail" xml:space="preserve"><value>應用程式統計詳情</value></data>
+  <data name="Stats_HistoryHeader" xml:space="preserve"><value>歷史記錄</value></data>
+  <data name="Chart_Line" xml:space="preserve"><value>折線</value></data>
+  <data name="Chart_Bar" xml:space="preserve"><value>長條</value></data>
+  <data name="Range_7Days" xml:space="preserve"><value>7 天</value></data>
+  <data name="Range_30Days" xml:space="preserve"><value>30 天</value></data>
+  <data name="Metric_Clicks" xml:space="preserve"><value>點擊</value></data>
+  <data name="Metric_Keys" xml:space="preserve"><value>按鍵</value></data>
+  <data name="Metric_Move" xml:space="preserve"><value>移動</value></data>
+  <data name="Metric_Scroll" xml:space="preserve"><value>滾動</value></data>
+  <data name="Stats_PeakKpsTooltipLabel" xml:space="preserve"><value>峰值按鍵速度 (KPS)</value></data>
+  <data name="Stats_PeakCpsTooltipLabel" xml:space="preserve"><value>峰值點擊速度 (CPS)</value></data>
+
+  <data name="AppStats_WindowTitle" xml:space="preserve"><value>依應用程式統計</value></data>
+  <data name="AppStats_HeaderTitle" xml:space="preserve"><value>依應用程式統計</value></data>
+  <data name="AppStats_HeaderSubtitle" xml:space="preserve"><value>依應用程式統計鍵盤/點擊/滾動資料，僅儲存彙總資料</value></data>
+  <data name="AppStats_RangeToday" xml:space="preserve"><value>今天</value></data>
+  <data name="AppStats_Range7Days" xml:space="preserve"><value>過去 7 天</value></data>
+  <data name="AppStats_Range30Days" xml:space="preserve"><value>過去 30 天</value></data>
+  <data name="AppStats_RangeAll" xml:space="preserve"><value>全部</value></data>
+  <data name="AppStats_ColumnApp" xml:space="preserve"><value>應用程式</value></data>
+  <data name="AppStats_ColumnKeys" xml:space="preserve"><value>鍵盤</value></data>
+  <data name="AppStats_ColumnClicks" xml:space="preserve"><value>點擊</value></data>
+  <data name="AppStats_ColumnScroll" xml:space="preserve"><value>滾輪</value></data>
+  <data name="AppStats_SummaryFormat" xml:space="preserve"><value>總計：{0} 鍵盤 | {1} 點擊 | {2} 滾動</value></data>
+  <data name="AppStats_Empty" xml:space="preserve"><value>暫無應用程式資料</value></data>
+  <data name="AppStats_UnknownApp" xml:space="preserve"><value>未知應用程式</value></data>
+  <data name="History_TotalFormat" xml:space="preserve"><value>總計：{0}</value></data>
+  <data name="KeyHistory_Empty" xml:space="preserve"><value>暫無按鍵歷史資料</value></data>
+  <data name="KeyHistory_SummaryFormat" xml:space="preserve"><value>總按鍵：{0} · 按鍵種類：{1}</value></data>
+  <data name="PieChart_Empty" xml:space="preserve"><value>暫無資料</value></data>
+  <data name="PieChart_CountFormat" xml:space="preserve"><value>次數：{0}</value></data>
+  <data name="PieChart_PercentFormat" xml:space="preserve"><value>比例：{0}</value></data>
+
+  <data name="Heatmap_WindowTitle" xml:space="preserve"><value>鍵盤熱力圖</value></data>
+  <data name="Heatmap_HeaderTitle" xml:space="preserve"><value>鍵盤熱力圖</value></data>
+  <data name="Heatmap_HeaderSubtitle" xml:space="preserve"><value>完整虛擬鍵盤視圖，按天顯示按鍵熱度</value></data>
+  <data name="Heatmap_PrevDay" xml:space="preserve"><value>前一天</value></data>
+  <data name="Heatmap_NextDay" xml:space="preserve"><value>下一天</value></data>
+  <data name="Heatmap_BackToToday" xml:space="preserve"><value>回到今天</value></data>
+  <data name="Heatmap_NoData" xml:space="preserve"><value>當天暫無鍵盤活動</value></data>
+  <data name="Heatmap_SummaryFormat" xml:space="preserve"><value>總計 {0} 次按鍵 · {1} 個活躍鍵</value></data>
+  <data name="Heatmap_DatePickerTooltip" xml:space="preserve"><value>選擇日期</value></data>
+
+  <data name="KeyHistory_WindowTitle" xml:space="preserve"><value>按鍵歷史</value></data>
+  <data name="KeyHistory_HeaderTitle" xml:space="preserve"><value>按鍵歷史</value></data>
+  <data name="KeyHistory_HeaderSubtitle" xml:space="preserve"><value>僅彙總統計按鍵數量，不記錄輸入內容</value></data>
+  <data name="KeyHistory_PieChartTitle" xml:space="preserve"><value>按鍵佔比（圓餅圖）</value></data>
+  <data name="KeyHistory_BarChartTitle" xml:space="preserve"><value>按鍵次數（長條圖）</value></data>
+  <data name="History_Range_Today" xml:space="preserve"><value>今天</value></data>
+  <data name="History_Range_Last7Days" xml:space="preserve"><value>過去 7 天</value></data>
+  <data name="History_Range_Last30Days" xml:space="preserve"><value>過去 30 天</value></data>
+  <data name="History_Range_All" xml:space="preserve"><value>全部</value></data>
+
+  <data name="Calibration_WindowTitle" xml:space="preserve"><value>滑鼠距離校準</value></data>
+  <data name="Calibration_HeaderTitle" xml:space="preserve"><value>滑鼠距離校準</value></data>
+  <data name="Calibration_Start" xml:space="preserve"><value>開始</value></data>
+  <data name="Calibration_Finish" xml:space="preserve"><value>完成</value></data>
+
+  <data name="Calibration_InstructionEnter" xml:space="preserve"><value>按 Enter 開始記錄，再按 Enter 結束記錄並計算距離係數</value></data>
+  <data name="Calibration_LengthLabel" xml:space="preserve"><value>尺規長度</value></data>
+  <data name="Calibration_StepsLabel" xml:space="preserve"><value>校準步驟</value></data>
+  <data name="Calibration_StatusIdle" xml:space="preserve"><value>尚未開始，按 Enter 開始</value></data>
+  <data name="Calibration_StatusRecording" xml:space="preserve"><value>已開始，移動尺規長度後按 Enter 結束</value></data>
+  <data name="Calibration_StatusPressEnterFirst" xml:space="preserve"><value>請先按 Enter 開始</value></data>
+  <data name="Calibration_StatusMovementTooShort" xml:space="preserve"><value>移動距離太短，請重新校準</value></data>
+  <data name="Calibration_StatusInvalidLength" xml:space="preserve"><value>尺規長度無效</value></data>
+  <data name="Calibration_StatusComplete" xml:space="preserve"><value>校準完成</value></data>
+  <data name="Calibration_DisplayUnitLabel" xml:space="preserve"><value>顯示單位</value></data>
+  <data name="Calibration_UnitAuto" xml:space="preserve"><value>自動 (cm/m/km)</value></data>
+  <data name="Calibration_UnitPixel" xml:space="preserve"><value>像素 (px)</value></data>
+  <data name="Calibration_CurrentResultLabel" xml:space="preserve"><value>目前結果</value></data>
+  <data name="Calibration_PixelsLabelEmpty" xml:space="preserve"><value>像素距離：--</value></data>
+  <data name="Calibration_PixelsLabelFormat" xml:space="preserve"><value>像素距離：{0:F0} px</value></data>
+  <data name="Calibration_ScaleLabelEmpty" xml:space="preserve"><value>換算係數：--</value></data>
+  <data name="Calibration_ScaleLabelFormat" xml:space="preserve"><value>換算係數：{0:E4} m/px</value></data>
+  <data name="Calibration_TipFooter" xml:space="preserve"><value>提示：若需要更準確，請關閉系統滑鼠加速並保持勻速移動。</value></data>
+
+  <!-- NotificationSettingsWindow -->
+  <data name="NotifSettings_WindowTitle" xml:space="preserve"><value>通知設定 - KeyStats</value></data>
+  <data name="NotifSettings_HeaderTitle" xml:space="preserve"><value>通知設定</value></data>
+  <data name="NotifSettings_HeaderSubtitle" xml:space="preserve"><value>當按鍵或點擊次數每達到設定門檻時傳送通知</value></data>
+  <data name="NotifSettings_Enable" xml:space="preserve"><value>啟用通知</value></data>
+  <data name="NotifSettings_KeyCardTitle" xml:space="preserve"><value>按鍵次數通知</value></data>
+  <data name="NotifSettings_ClickCardTitle" xml:space="preserve"><value>滑鼠點擊通知</value></data>
+  <data name="NotifSettings_EveryFormat" xml:space="preserve"><value>每 {0} 次通知一次</value></data>
+  <data name="NotifSettings_Hint" xml:space="preserve"><value>例如：設為 1000，則會在 1000、2000、3000... 次時通知。</value></data>
+
+  <!-- ImportModeDialog -->
+  <data name="ImportDialog_HeaderTitle" xml:space="preserve"><value>選擇匯入方式</value></data>
+  <data name="ImportDialog_Description" xml:space="preserve"><value>請選擇如何處理匯入的資料：</value></data>
+  <data name="ImportDialog_OverwriteDesc" xml:space="preserve"><value>刪除現有資料，並使用匯入的資料取代</value></data>
+  <data name="ImportDialog_MergeDesc" xml:space="preserve"><value>保留現有資料，並將匯入資料累加合併</value></data>
+
+  <!-- ConfirmDialog -->
+  <data name="Confirm_DefaultHeaderTitle" xml:space="preserve"><value>確認操作</value></data>
+  <data name="Confirm_DefaultMessage" xml:space="preserve"><value>確定要執行此操作嗎？</value></data>
+  <data name="Confirm_DefaultTitle" xml:space="preserve"><value>確認</value></data>
+  <data name="Confirm_DefaultConfirm" xml:space="preserve"><value>確定</value></data>
+</root>

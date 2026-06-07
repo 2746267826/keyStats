@@ -50,6 +50,9 @@
     <EmbeddedResource Update="Properties\Strings.zh-Hans.resx">
       <ManifestResourceName>KeyStats.Properties.Strings.zh-Hans</ManifestResourceName>
     </EmbeddedResource>
+    <EmbeddedResource Update="Properties\Strings.zh-Hant.resx">
+      <ManifestResourceName>KeyStats.Properties.Strings.zh-Hant</ManifestResourceName>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

@@ -119,7 +119,8 @@
                           SelectionChanged="LanguageComboBox_SelectionChanged"
                           Loaded="LanguageComboBox_Loaded">
                     <ComboBoxItem Content="{x:Static p:Strings.Settings_Language_System}" Tag="system"/>
-                    <ComboBoxItem Content="中文" Tag="zh-Hans"/>
+                    <ComboBoxItem Content="简体中文" Tag="zh-Hans"/>
+                    <ComboBoxItem Content="繁體中文" Tag="zh-Hant"/>
                     <ComboBoxItem Content="English" Tag="en"/>
                 </ComboBox>
             </Grid>
