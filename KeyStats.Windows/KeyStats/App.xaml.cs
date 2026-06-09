@@ -457,7 +457,7 @@ public partial class App : System.Windows.Application
             _trayIcon = null;
         }
         InputMonitorService.Instance.StopMonitoring();
-        StatsManager.Instance.FlushPendingSave();
+        StatsManager.Instance.Dispose();
         ThemeManager.Instance.Dispose();
         _singleInstanceMutex?.ReleaseMutex();
         _singleInstanceMutex?.Dispose();

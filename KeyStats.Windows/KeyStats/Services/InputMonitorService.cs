@@ -274,8 +274,11 @@ public class InputMonitorService : IDisposable
                     NativeInterop.GetWindowThreadProcessId(hWnd, out uint pid);
                     ThreadPool.QueueUserWorkItem(_ =>
                     {
-                        var activeApp = ActiveWindowManager.ResolveAppInfo(hWnd, pid);
-                        KeyPressed?.Invoke(keyName, activeApp.AppName, activeApp.DisplayName);
+                        InvokeSubscriber("KeyPressed", () =>
+                        {
+                            var activeApp = ActiveWindowManager.ResolveAppInfo(hWnd, pid);
+                            KeyPressed?.Invoke(keyName, activeApp.AppName, activeApp.DisplayName);
+                        });
                     });
                 }
             }
@@ -311,15 +314,24 @@ public class InputMonitorService : IDisposable
                         NativeInterop.GetWindowThreadProcessId(hWnd, out uint pid);
                         ThreadPool.QueueUserWorkItem(_ =>
                         {
-                            var activeApp = ActiveWindowManager.ResolveAppInfo(hWnd, pid);
-                            var appName = activeApp.AppName;
-                            var displayName = activeApp.DisplayName;
-                            if (msg == NativeInterop.WM_LBUTTONDOWN)
-                                LeftMouseClicked?.Invoke(appName, displayName);
-                            else if (msg == NativeInterop.WM_RBUTTONDOWN)
-                                RightMouseClicked?.Invoke(appName, displayName);
-                            else
-                                MiddleMouseClicked?.Invoke(appName, displayName);
+                            InvokeSubscriber("MouseClicked", () =>
+                            {
+                                var activeApp = ActiveWindowManager.ResolveAppInfo(hWnd, pid);
+                                var appName = activeApp.AppName;
+                                var displayName = activeApp.DisplayName;
+                                if (msg == NativeInterop.WM_LBUTTONDOWN)
+                                {
+                                    LeftMouseClicked?.Invoke(appName, displayName);
+                                }
+                                else if (msg == NativeInterop.WM_RBUTTONDOWN)
+                                {
+                                    RightMouseClicked?.Invoke(appName, displayName);
+                                }
+                                else
+                                {
+                                    MiddleMouseClicked?.Invoke(appName, displayName);
+                                }
+                            });
                         });
                     }
                     break;
@@ -331,12 +343,19 @@ public class InputMonitorService : IDisposable
                         NativeInterop.GetWindowThreadProcessId(hWnd, out uint pid);
                         ThreadPool.QueueUserWorkItem(_ =>
                         {
-                            var activeApp = ActiveWindowManager.ResolveAppInfo(hWnd, pid);
-                            var button = NativeInterop.HiWord((int)mouseData);
-                            if (button == NativeInterop.XBUTTON2)
-                                SideForwardMouseClicked?.Invoke(activeApp.AppName, activeApp.DisplayName);
-                            else
-                                SideBackMouseClicked?.Invoke(activeApp.AppName, activeApp.DisplayName);
+                            InvokeSubscriber("SideMouseClicked", () =>
+                            {
+                                var activeApp = ActiveWindowManager.ResolveAppInfo(hWnd, pid);
+                                var button = NativeInterop.HiWord((int)mouseData);
+                                if (button == NativeInterop.XBUTTON2)
+                                {
+                                    SideForwardMouseClicked?.Invoke(activeApp.AppName, activeApp.DisplayName);
+                                }
+                                else
+                                {
+                                    SideBackMouseClicked?.Invoke(activeApp.AppName, activeApp.DisplayName);
+                                }
+                            });
                         });
                     }
                     break;
@@ -353,8 +372,11 @@ public class InputMonitorService : IDisposable
                         NativeInterop.GetWindowThreadProcessId(hWnd, out uint pid);
                         ThreadPool.QueueUserWorkItem(_ =>
                         {
-                            var activeApp = ActiveWindowManager.ResolveAppInfo(hWnd, pid);
-                            HandleScroll(mouseData, activeApp.AppName, activeApp.DisplayName);
+                            InvokeSubscriber("MouseScrolled", () =>
+                            {
+                                var activeApp = ActiveWindowManager.ResolveAppInfo(hWnd, pid);
+                                HandleScroll(mouseData, activeApp.AppName, activeApp.DisplayName);
+                            });
                         });
                     }
                     break;
@@ -407,7 +429,7 @@ public class InputMonitorService : IDisposable
         }
 
         var distance = reportedDistance;
-        ThreadPool.QueueUserWorkItem(_ => MouseMoved?.Invoke(distance));
+        ThreadPool.QueueUserWorkItem(_ => InvokeSubscriber("MouseMoved", () => MouseMoved?.Invoke(distance)));
     }
 
     private void HandleScroll(uint mouseData, string appName, string displayName)
@@ -415,6 +437,18 @@ public class InputMonitorService : IDisposable
         var delta = NativeInterop.HiWord((int)mouseData);
         var scrollDistance = Math.Abs(delta) / 120.0;
         MouseScrolled?.Invoke(scrollDistance, appName, displayName);
+    }
+
+    private static void InvokeSubscriber(string eventName, Action invoke)
+    {
+        try
+        {
+            invoke();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"{eventName} subscriber failed: {ex}");
+        }
     }
 
     public void ResetLastMousePosition()

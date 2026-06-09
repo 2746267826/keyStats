@@ -45,6 +45,7 @@ public class StatsManager : IDisposable
     private bool _pendingStatsUpdate;
     private bool _pendingMouseMoveUpdate;
     private bool _pendingSettingsSave;
+    private volatile bool _isDisposed;
 
     // KPS/CPS peak tracking (1-second sliding window)
     private readonly Queue<DateTime> _recentKeyTimestamps = new();
@@ -100,6 +101,19 @@ public class StatsManager : IDisposable
         monitor.SideForwardMouseClicked += OnSideForwardClick;
         monitor.MouseMoved += OnMouseMoved;
         monitor.MouseScrolled += OnMouseScrolled;
+    }
+
+    private void TeardownInputMonitor()
+    {
+        var monitor = InputMonitorService.Instance;
+        monitor.KeyPressed -= OnKeyPressed;
+        monitor.LeftMouseClicked -= OnLeftClick;
+        monitor.RightMouseClicked -= OnRightClick;
+        monitor.MiddleMouseClicked -= OnMiddleClick;
+        monitor.SideBackMouseClicked -= OnSideBackClick;
+        monitor.SideForwardMouseClicked -= OnSideForwardClick;
+        monitor.MouseMoved -= OnMouseMoved;
+        monitor.MouseScrolled -= OnMouseScrolled;
     }
 
     private void UpdateAppStats(string appName, string displayName, Action<AppStats> updateAction)
@@ -161,6 +175,8 @@ public class StatsManager : IDisposable
     {
         lock (_lock)
         {
+            if (_isDisposed) return;
+
             EnsureCurrentDay();
             CurrentStats.KeyPresses++;
             if (!string.IsNullOrEmpty(keyName))
@@ -184,6 +200,8 @@ public class StatsManager : IDisposable
     {
         lock (_lock)
         {
+            if (_isDisposed) return;
+
             EnsureCurrentDay();
             CurrentStats.LeftClicks++;
             UpdateAppStats(appName, displayName, stats => stats.RecordLeftClick());
@@ -199,6 +217,8 @@ public class StatsManager : IDisposable
     {
         lock (_lock)
         {
+            if (_isDisposed) return;
+
             EnsureCurrentDay();
             CurrentStats.RightClicks++;
             UpdateAppStats(appName, displayName, stats => stats.RecordRightClick());
@@ -214,6 +234,8 @@ public class StatsManager : IDisposable
     {
         lock (_lock)
         {
+            if (_isDisposed) return;
+
             EnsureCurrentDay();
             CurrentStats.MiddleClicks++;
             UpdateAppStats(appName, displayName, stats => stats.RecordMiddleClick());
@@ -229,6 +251,8 @@ public class StatsManager : IDisposable
     {
         lock (_lock)
         {
+            if (_isDisposed) return;
+
             EnsureCurrentDay();
             CurrentStats.SideBackClicks++;
             UpdateAppStats(appName, displayName, stats => stats.RecordSideBackClick());
@@ -244,6 +268,8 @@ public class StatsManager : IDisposable
     {
         lock (_lock)
         {
+            if (_isDisposed) return;
+
             EnsureCurrentDay();
             CurrentStats.SideForwardClicks++;
             UpdateAppStats(appName, displayName, stats => stats.RecordSideForwardClick());
@@ -259,6 +285,8 @@ public class StatsManager : IDisposable
     {
         lock (_lock)
         {
+            if (_isDisposed) return;
+
             EnsureCurrentDay();
             CurrentStats.MouseDistance += distance;
         }
@@ -271,6 +299,8 @@ public class StatsManager : IDisposable
     {
         lock (_lock)
         {
+            if (_isDisposed) return;
+
             EnsureCurrentDay();
             CurrentStats.ScrollDistance += Math.Abs(distance);
             UpdateAppStats(appName, displayName, stats => stats.AddScrollDistance(Math.Abs(distance)));
@@ -327,6 +357,8 @@ public class StatsManager : IDisposable
     {
         lock (_lock)
         {
+            if (_isDisposed) return;
+
             _pendingSave = true;
 
             if (_saveTimer == null)
@@ -357,8 +389,7 @@ public class StatsManager : IDisposable
                 return;
             }
 
-            saveTimer.Stop();
-            saveTimer.Start();
+            RestartTimer(saveTimer);
         }
     }
 
@@ -366,61 +397,142 @@ public class StatsManager : IDisposable
     {
         lock (_lock)
         {
+            if (_isDisposed) return;
             if (_pendingStatsUpdate) return;
             _pendingStatsUpdate = true;
-        }
 
-        _statsUpdateTimer?.Stop();
-        _statsUpdateTimer = new Timer(_statsUpdateDebounceInterval);
-        _statsUpdateTimer.Elapsed += (_, _) =>
-        {
-            _statsUpdateTimer?.Stop();
-            lock (_lock)
+            if (_statsUpdateTimer == null)
             {
-                _pendingStatsUpdate = false;
+                _statsUpdateTimer = new Timer(_statsUpdateDebounceInterval)
+                {
+                    AutoReset = false
+                };
+                _statsUpdateTimer.Elapsed += (_, _) =>
+                {
+                    lock (_lock)
+                    {
+                        if (_isDisposed || !_pendingStatsUpdate)
+                        {
+                            return;
+                        }
+
+                        _pendingStatsUpdate = false;
+                    }
+
+                    NotifyStatsUpdate();
+                };
             }
-            NotifyStatsUpdate();
-        };
-        _statsUpdateTimer.Start();
+
+            RestartTimer(_statsUpdateTimer);
+        }
     }
 
     private void ScheduleMouseMoveIdleUpdate()
     {
         lock (_lock)
         {
-            _pendingMouseMoveUpdate = true;
-        }
+            if (_isDisposed) return;
 
-        if (_mouseMoveUpdateTimer == null)
-        {
-            _mouseMoveUpdateTimer = new Timer(_mouseMoveIdleUpdateInterval)
+            _pendingMouseMoveUpdate = true;
+
+            if (_mouseMoveUpdateTimer == null)
             {
-                AutoReset = false
-            };
-            _mouseMoveUpdateTimer.Elapsed += (_, _) =>
-            {
-                lock (_lock)
+                _mouseMoveUpdateTimer = new Timer(_mouseMoveIdleUpdateInterval)
                 {
-                    if (!_pendingMouseMoveUpdate)
+                    AutoReset = false
+                };
+                _mouseMoveUpdateTimer.Elapsed += (_, _) =>
+                {
+                    lock (_lock)
                     {
-                        return;
+                        if (_isDisposed || !_pendingMouseMoveUpdate)
+                        {
+                            return;
+                        }
+
+                        _pendingMouseMoveUpdate = false;
                     }
 
-                    _pendingMouseMoveUpdate = false;
-                }
+                    NotifyStatsUpdate(StatsUpdateKind.MouseDistanceOnly);
+                };
+            }
 
-                NotifyStatsUpdate(StatsUpdateKind.MouseDistanceOnly);
-            };
+            RestartTimer(_mouseMoveUpdateTimer);
         }
+    }
 
-        var mouseMoveUpdateTimer = _mouseMoveUpdateTimer;
-        if (mouseMoveUpdateTimer == null)
+    private static void RestartTimer(Timer timer)
+    {
+        timer.Stop();
+        timer.Start();
+    }
+
+    private static void StopTimer(Timer? timer)
+    {
+        timer?.Stop();
+    }
+
+    private static void DisposeTimer(ref Timer? timer)
+    {
+        var timerToDispose = timer;
+        timer = null;
+        timerToDispose?.Dispose();
+    }
+
+    private void StopActivityTimers()
+    {
+        lock (_lock)
         {
-            return;
+            StopTimer(_saveTimer);
+            StopTimer(_statsUpdateTimer);
+            StopTimer(_mouseMoveUpdateTimer);
+            StopTimer(_settingsSaveTimer);
         }
+    }
 
-        mouseMoveUpdateTimer.Stop();
-        mouseMoveUpdateTimer.Start();
+    private void DisposeActivityTimers()
+    {
+        lock (_lock)
+        {
+            DisposeTimer(ref _saveTimer);
+            DisposeTimer(ref _statsUpdateTimer);
+            DisposeTimer(ref _mouseMoveUpdateTimer);
+            DisposeTimer(ref _settingsSaveTimer);
+        }
+    }
+
+    private void StopMidnightTimer()
+    {
+        lock (_midnightTimerLock)
+        {
+            StopTimer(_midnightTimer);
+        }
+    }
+
+    private void DisposeMidnightTimer()
+    {
+        lock (_midnightTimerLock)
+        {
+            DisposeTimer(ref _midnightTimer);
+        }
+    }
+
+    private bool BeginDispose()
+    {
+        lock (_lock)
+        {
+            if (_isDisposed)
+            {
+                return false;
+            }
+
+            _isDisposed = true;
+            _pendingSave = false;
+            _pendingStatsUpdate = false;
+            _pendingMouseMoveUpdate = false;
+            _pendingSettingsSave = false;
+            return true;
+        }
     }
 
     private void NotifyStatsUpdate(StatsUpdateKind kind = StatsUpdateKind.Full)
@@ -540,6 +652,8 @@ public class StatsManager : IDisposable
         // keystroke would block the UI thread on a synchronous FlushFileBuffers.
         lock (_lock)
         {
+            if (_isDisposed) return;
+
             _pendingSettingsSave = true;
 
             if (_settingsSaveTimer == null)
@@ -557,8 +671,7 @@ public class StatsManager : IDisposable
                 };
             }
 
-            _settingsSaveTimer.Stop();
-            _settingsSaveTimer.Start();
+            RestartTimer(_settingsSaveTimer);
         }
     }
 
@@ -976,8 +1089,12 @@ public class StatsManager : IDisposable
 
     private void ScheduleNextMidnightReset()
     {
+        if (_isDisposed) return;
+
         lock (_midnightTimerLock)
         {
+            if (_isDisposed) return;
+
             _midnightTimer?.Stop();
             _midnightTimer?.Dispose();
 
@@ -1767,15 +1884,16 @@ public class StatsManager : IDisposable
 
     public void FlushPendingSave()
     {
-        _saveTimer?.Stop();
-        _statsUpdateTimer?.Stop();
-        _mouseMoveUpdateTimer?.Stop();
-        _midnightTimer?.Stop();
-        _settingsSaveTimer?.Stop();
+        StopActivityTimers();
+        StopMidnightTimer();
 
         lock (_lock)
         {
+            if (_isDisposed) return;
+
             _pendingSave = false;
+            _pendingStatsUpdate = false;
+            _pendingMouseMoveUpdate = false;
             _pendingSettingsSave = false;
         }
 
@@ -1786,12 +1904,19 @@ public class StatsManager : IDisposable
 
     public void Dispose()
     {
-        FlushPendingSave();
-        _saveTimer?.Dispose();
-        _statsUpdateTimer?.Dispose();
-        _mouseMoveUpdateTimer?.Dispose();
-        _midnightTimer?.Dispose();
-        _settingsSaveTimer?.Dispose();
+        if (!BeginDispose())
+        {
+            return;
+        }
+
+        TeardownInputMonitor();
+        StopActivityTimers();
+        StopMidnightTimer();
+        SaveStats();
+        SaveHistory();
+        FlushSettings();
+        DisposeActivityTimers();
+        DisposeMidnightTimer();
         _instance = null;
     }
 }
