@@ -8,14 +8,14 @@ enum DynamicIconColorStyle: String {
 
 /// 菜单栏控制器
 class MenuBarController {
-    
+
     private var statusItem: NSStatusItem!
     private var statusView: MenuBarStatusView?
     private var contextMenu: NSMenu?
     private var popover: NSPopover!
     private var eventMonitor: Any?
     private let dynamicIconColorStyleKey = "dynamicIconColorStyle"
-    
+
     init() {
         setupStatusItem()
         setupContextMenu()
@@ -25,19 +25,19 @@ class MenuBarController {
             self?.updateMenuBarText()
         }
     }
-    
+
     deinit {
         StatsManager.shared.menuBarUpdateHandler = nil
         if let monitor = eventMonitor {
             NSEvent.removeMonitor(monitor)
         }
     }
-    
+
     // MARK: - 设置状态栏项
-    
+
     private func setupStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        
+
         let statusView = MenuBarStatusView()
         statusView.onClick = { [weak self] in
             self?.togglePopover()
@@ -73,9 +73,9 @@ class MenuBarController {
 
         contextMenu = menu
     }
-    
+
     // MARK: - 设置弹出面板
-    
+
     private func setupPopover() {
         popover = NSPopover()
         popover.behavior = .transient
@@ -88,9 +88,9 @@ class MenuBarController {
         statsPopoverViewController.prepareForPopoverPresentation()
         popover.contentSize = statsPopoverViewController.preferredContentSize
     }
-    
+
     // MARK: - 设置事件监听（点击外部关闭弹窗）
-    
+
     private func setupEventMonitor() {
         eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
             if let popover = self?.popover, popover.isShown {
@@ -98,9 +98,9 @@ class MenuBarController {
             }
         }
     }
-    
+
     // MARK: - 操作
-    
+
     @objc private func togglePopover() {
         if popover.isShown {
             closePopover()
@@ -123,7 +123,7 @@ class MenuBarController {
     @objc private func quitApp() {
         NSApp.terminate(nil)
     }
-    
+
     private func showPopover() {
         // 先激活应用，确保弹窗可以接收焦点
         NSApp.activate(ignoringOtherApps: true)
@@ -146,11 +146,11 @@ class MenuBarController {
         AppDelegate.trackClick("tray_icon")
         AppDelegate.trackPageView("stats_popup")
     }
-    
+
     private func closePopover() {
         popover.performClose(nil)
     }
-    
+
     @objc private func updateMenuBarText() {
         if Thread.isMainThread {
             updateMenuBarAppearance()
@@ -169,11 +169,17 @@ class MenuBarController {
             ? StatsManager.shared.currentIconTintColor
             : nil
         let styleValue = UserDefaults.standard.string(forKey: dynamicIconColorStyleKey) ?? DynamicIconColorStyle.icon.rawValue
-        let style = DynamicIconColorStyle(rawValue: styleValue) ?? .icon
+        let minimalMode = StatsManager.shared.minimalMenuBarMode
+        let style = minimalMode ? .dot : (DynamicIconColorStyle(rawValue: styleValue) ?? .icon)
 
         if let statusView = statusView {
             statusView.update(keysText: parts.keys, clicksText: parts.clicks)
-            statusView.updateIconColor(tintColor, style: style)
+            statusView.updateIconColor(tintColor,
+                                       style: style,
+                                       isMinimalMode: minimalMode,
+                                       showsColorDot: minimalMode &&
+                                           StatsManager.shared.enableDynamicIconColor &&
+                                           StatsManager.shared.currentInputRatePerSecond > 0)
             statusItem.length = statusView.intrinsicContentSize.width
         } else if let button = statusItem.button {
             button.attributedTitle = makeStatusTitle(keysText: parts.keys, clicksText: parts.clicks)
@@ -211,12 +217,12 @@ class MenuBarController {
         }
 
         appendAppIcon()
-        
+
         if !keysText.isEmpty {
             appendText(" ")
             appendText(keysText)
         }
-        
+
         if !clicksText.isEmpty {
             appendText(" ")
             appendText(clicksText)
@@ -233,6 +239,8 @@ final class MenuBarStatusViewModel: ObservableObject {
     @Published var clicksText: String = "0"
     @Published var iconColor: NSColor?
     @Published var colorStyle: DynamicIconColorStyle = .icon
+    @Published var isMinimalMode: Bool = false
+    @Published var showsColorDot: Bool = false
 }
 
 struct MenuBarStatusSwiftUIView: View {
@@ -256,26 +264,28 @@ struct MenuBarStatusSwiftUIView: View {
 
     var body: some View {
         let hasText = !viewModel.keysText.isEmpty || !viewModel.clicksText.isEmpty
-        let horizontalPadding: CGFloat = hasText ? 6 : 4
+        let horizontalPadding: CGFloat = viewModel.isMinimalMode ? 3 : (hasText ? 6 : 4)
 
         HStack(spacing: 4) {
-            ZStack(alignment: .topLeading) {
-                if let icon = Self.menuIcon {
-                    Image(nsImage: icon)
-                        .resizable()
-                        .renderingMode(.template)
-                        .frame(width: 18, height: 18, alignment: .center)
-                        .foregroundStyle(iconTint)
-                }
+            if !viewModel.isMinimalMode {
+                ZStack(alignment: .topLeading) {
+                    if let icon = Self.menuIcon {
+                        Image(nsImage: icon)
+                            .resizable()
+                            .renderingMode(.template)
+                            .frame(width: 18, height: 18, alignment: .center)
+                            .foregroundStyle(iconTint)
+                    }
 
-                if let dotColor = dotColor {
-                    Circle()
-                        .fill(dotColor)
-                        .frame(width: 6, height: 6)
-                        .offset(x: -3, y: -3)
+                    if let dotColor = dotColor {
+                        Circle()
+                            .fill(dotColor)
+                            .frame(width: 6, height: 6)
+                            .offset(x: -3, y: -3)
+                    }
                 }
+                .frame(width: 18, height: 18, alignment: .center)
             }
-            .frame(width: 18, height: 18, alignment: .center)
 
             if hasText {
                 VStack(alignment: .leading, spacing: 0) {
@@ -285,6 +295,14 @@ struct MenuBarStatusSwiftUIView: View {
 
                     if !viewModel.clicksText.isEmpty {
                         MenuBarValueText(text: viewModel.clicksText, weight: .medium)
+                    }
+                }
+                .overlay(alignment: .topLeading) {
+                    if viewModel.isMinimalMode, let dotColor = dotColor {
+                        Circle()
+                            .fill(dotColor)
+                            .frame(width: 6, height: 6)
+                            .offset(x: -8, y: 3)
                     }
                 }
             }
@@ -305,10 +323,10 @@ struct MenuBarStatusSwiftUIView: View {
     }
 
     private var dotColor: Color? {
-        guard viewModel.colorStyle == .dot, let color = viewModel.iconColor else {
+        guard viewModel.colorStyle == .dot, viewModel.showsColorDot else {
             return nil
         }
-        return Color(nsColor: color)
+        return Color(nsColor: viewModel.iconColor ?? .secondaryLabelColor)
     }
 }
 
@@ -340,6 +358,8 @@ class MenuBarStatusView: NSView {
     private var hostingView: NSHostingView<MenuBarStatusSwiftUIView>?
     private var currentKeysText: String = "0"
     private var currentClicksText: String = "0"
+    private var isMinimalMode = false
+    private var showsColorDot = false
 
     var onClick: (() -> Void)?
     var onRightClick: (() -> Void)?
@@ -372,14 +392,15 @@ class MenuBarStatusView: NSView {
 
     override var intrinsicContentSize: NSSize {
         let hasText = !currentKeysText.isEmpty || !currentClicksText.isEmpty
-        let horizontalPadding: CGFloat = hasText ? 12 : 8
-        let iconWidth: CGFloat = 18
-        let iconTextSpacing: CGFloat = hasText ? 4 : 0
+        let horizontalPadding: CGFloat = isMinimalMode ? 6 : (hasText ? 12 : 8)
+        let iconWidth: CGFloat = isMinimalMode ? 0 : 18
+        let leadingVisualWidth = iconWidth
+        let iconTextSpacing: CGFloat = leadingVisualWidth > 0 && hasText ? 4 : 0
         let textWidth = max(
             Self.valueWidth(for: currentKeysText, weight: .semibold),
             Self.valueWidth(for: currentClicksText, weight: .medium)
         )
-        let width = ceil(horizontalPadding + iconWidth + iconTextSpacing + textWidth + 1)
+        let width = ceil(horizontalPadding + leadingVisualWidth + iconTextSpacing + textWidth + 1)
 
         if let hostingView = hostingView {
             return NSSize(width: width, height: max(hostingView.fittingSize.height, 20))
@@ -414,10 +435,14 @@ class MenuBarStatusView: NSView {
         return (text as NSString).size(withAttributes: [.font: font]).width
     }
 
-    func updateIconColor(_ color: NSColor?, style: DynamicIconColorStyle) {
+    func updateIconColor(_ color: NSColor?, style: DynamicIconColorStyle, isMinimalMode: Bool, showsColorDot: Bool) {
         let updateBlock = {
             self.viewModel.iconColor = color
             self.viewModel.colorStyle = style
+            self.viewModel.isMinimalMode = isMinimalMode
+            self.viewModel.showsColorDot = showsColorDot || (style == .dot && color != nil)
+            self.isMinimalMode = isMinimalMode
+            self.showsColorDot = showsColorDot || (style == .dot && color != nil)
         }
 
         if Thread.isMainThread {
@@ -427,6 +452,10 @@ class MenuBarStatusView: NSView {
                 updateBlock()
             }
         }
+
+        invalidateIntrinsicContentSize()
+        hostingView?.invalidateIntrinsicContentSize()
+        needsLayout = true
     }
 
     override func hitTest(_ point: NSPoint) -> NSView? {

@@ -45,6 +45,7 @@
 "menu.closeWindow" = "关闭窗口";
 "setting.showKeyPresses" = "在菜单栏显示按键数";
 "setting.showMouseClicks" = "在菜单栏显示点击数";
+"setting.minimalMenuBarMode" = "极简菜单栏模式";
 "setting.appStatsEnabled" = "按应用统计";
 "setting.notificationsEnabled" = "开启统计通知";
 "setting.notifyKeyThreshold" = "按键通知阈值";

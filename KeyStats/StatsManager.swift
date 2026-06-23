@@ -98,6 +98,7 @@ class StatsManager {
     private let historyKey = "dailyStatsHistory"
     private let showKeyPressesKey = "showKeyPressesInMenuBar"
     private let showMouseClicksKey = "showMouseClicksInMenuBar"
+    private let minimalMenuBarModeKey = "minimalMenuBarMode"
     private let appStatsEnabledKey = "appStatsEnabled"
     private let keyPressNotifyThresholdKey = "keyPressNotifyThreshold"
     private let clickNotifyThresholdKey = "clickNotifyThreshold"
@@ -172,6 +173,14 @@ class StatsManager {
     var showMouseClicksInMenuBar: Bool {
         didSet {
             userDefaults.set(showMouseClicksInMenuBar, forKey: showMouseClicksKey)
+            notifyMenuBarUpdate()
+        }
+    }
+
+    /// 设置：是否启用极简菜单栏模式
+    var minimalMenuBarMode: Bool {
+        didSet {
+            userDefaults.set(minimalMenuBarMode, forKey: minimalMenuBarModeKey)
             notifyMenuBarUpdate()
         }
     }
@@ -299,6 +308,7 @@ class StatsManager {
         // 加载设置（按键/点击默认 true，通知/动态图标默认 false）
         showKeyPressesInMenuBar = userDefaults.object(forKey: showKeyPressesKey) as? Bool ?? true
         showMouseClicksInMenuBar = userDefaults.object(forKey: showMouseClicksKey) as? Bool ?? true
+        minimalMenuBarMode = userDefaults.object(forKey: minimalMenuBarModeKey) as? Bool ?? false
         appStatsEnabled = userDefaults.object(forKey: appStatsEnabledKey) as? Bool ?? true
         notificationsEnabled = userDefaults.object(forKey: notificationsEnabledKey) as? Bool ?? false
         keyPressNotifyThreshold = userDefaults.object(forKey: keyPressNotifyThresholdKey) as? Int ?? 1000

@@ -45,6 +45,7 @@
 "menu.closeWindow" = "Close Window";
 "setting.showKeyPresses" = "Show Key Presses in Menu Bar";
 "setting.showMouseClicks" = "Show Mouse Clicks in Menu Bar";
+"setting.minimalMenuBarMode" = "Minimal Menu Bar Mode";
 "setting.appStatsEnabled" = "Track Activity by App";
 "setting.notificationsEnabled" = "Enable Statistic Notifications";
 "setting.notifyKeyThreshold" = "Key Press Notification Threshold";

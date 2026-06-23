@@ -33,6 +33,7 @@ final class SettingsViewController: NSViewController, NSTextFieldDelegate {
 
     private var showKeyPressesButton: NSSwitch!
     private var showMouseClicksButton: NSSwitch!
+    private var minimalMenuBarModeButton: NSSwitch!
     private var appStatsEnabledButton: NSSwitch!
     private var launchAtLoginButton: NSSwitch!
     private var dynamicIconColorButton: NSSwitch!
@@ -253,6 +254,7 @@ final class SettingsViewController: NSViewController, NSTextFieldDelegate {
 
         showKeyPressesButton = makeSwitch(action: #selector(toggleShowKeyPresses))
         showMouseClicksButton = makeSwitch(action: #selector(toggleShowMouseClicks))
+        minimalMenuBarModeButton = makeSwitch(action: #selector(toggleMinimalMenuBarMode))
         appStatsEnabledButton = makeSwitch(action: #selector(toggleAppStatsEnabled))
         launchAtLoginButton = makeSwitch(action: #selector(toggleLaunchAtLogin))
         showThresholdsButton = makeSwitch(action: #selector(toggleShowThresholds))
@@ -268,7 +270,8 @@ final class SettingsViewController: NSViewController, NSTextFieldDelegate {
 
         let menuBarStack = makeOptionSeparatedStack([
             makeSwitchRow(titleKey: "setting.showKeyPresses", toggle: showKeyPressesButton),
-            makeSwitchRow(titleKey: "setting.showMouseClicks", toggle: showMouseClicksButton)
+            makeSwitchRow(titleKey: "setting.showMouseClicks", toggle: showMouseClicksButton),
+            makeSwitchRow(titleKey: "setting.minimalMenuBarMode", toggle: minimalMenuBarModeButton)
         ])
 
         let menuBarSection = makeSection(titleKey: "settings.section.menuBar", content: menuBarStack)
@@ -677,6 +680,7 @@ final class SettingsViewController: NSViewController, NSTextFieldDelegate {
     private func updateState() {
         showKeyPressesButton.state = StatsManager.shared.showKeyPressesInMenuBar ? .on : .off
         showMouseClicksButton.state = StatsManager.shared.showMouseClicksInMenuBar ? .on : .off
+        minimalMenuBarModeButton.state = StatsManager.shared.minimalMenuBarMode ? .on : .off
         appStatsEnabledButton.state = StatsManager.shared.appStatsEnabled ? .on : .off
         launchAtLoginButton.state = LaunchAtLoginManager.shared.isEnabled ? .on : .off
         dynamicIconColorButton.state = StatsManager.shared.enableDynamicIconColor ? .on : .off
@@ -688,13 +692,17 @@ final class SettingsViewController: NSViewController, NSTextFieldDelegate {
     }
 
     private func updateDynamicIconColorStyleSelection() {
+        let isMinimalMode = StatsManager.shared.minimalMenuBarMode
+        if isMinimalMode {
+            UserDefaults.standard.set(DynamicIconColorStyle.dot.rawValue, forKey: dynamicIconColorStyleKey)
+        }
         let styleValue = UserDefaults.standard.string(forKey: dynamicIconColorStyleKey) ?? DynamicIconColorStyle.icon.rawValue
         let style = DynamicIconColorStyle(rawValue: styleValue) ?? .icon
         if let item = dynamicIconColorStylePopUp.itemArray.first(where: { ($0.representedObject as? String) == style.rawValue }) {
             dynamicIconColorStylePopUp.select(item)
         }
         let isEnabled = StatsManager.shared.enableDynamicIconColor
-        dynamicIconColorStylePopUp.isEnabled = isEnabled
+        dynamicIconColorStylePopUp.isEnabled = isEnabled && !isMinimalMode
         dynamicIconColorStyleRow.isHidden = false
         dynamicIconColorWindowRow.isHidden = false
         dynamicIconOptionsContainer.isHidden = !isEnabled
@@ -996,6 +1004,11 @@ final class SettingsViewController: NSViewController, NSTextFieldDelegate {
         StatsManager.shared.showMouseClicksInMenuBar = (showMouseClicksButton.state == .on)
     }
 
+    @objc private func toggleMinimalMenuBarMode() {
+        StatsManager.shared.minimalMenuBarMode = (minimalMenuBarModeButton.state == .on)
+        updateDynamicIconColorStyleSelection()
+    }
+
     @objc private func toggleAppStatsEnabled() {
         StatsManager.shared.appStatsEnabled = (appStatsEnabledButton.state == .on)
     }
@@ -1006,6 +1019,12 @@ final class SettingsViewController: NSViewController, NSTextFieldDelegate {
     }
 
     @objc private func dynamicIconColorStyleChanged() {
+        if StatsManager.shared.minimalMenuBarMode {
+            UserDefaults.standard.set(DynamicIconColorStyle.dot.rawValue, forKey: dynamicIconColorStyleKey)
+            updateDynamicIconColorStyleSelection()
+            StatsManager.shared.menuBarUpdateHandler?()
+            return
+        }
         guard let rawValue = dynamicIconColorStylePopUp.selectedItem?.representedObject as? String else { return }
         UserDefaults.standard.set(rawValue, forKey: dynamicIconColorStyleKey)
         StatsManager.shared.menuBarUpdateHandler?()
