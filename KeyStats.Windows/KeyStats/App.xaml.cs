@@ -38,6 +38,7 @@ public partial class App : System.Windows.Application
     private System.Threading.Mutex? _singleInstanceMutex;
     private string? _appVersion;
     private IPostHogAnalytics? _postHogClient;
+    private ApiService? _apiService;
     private long _lastResumeRecoveryTicks;
 
     protected override void OnStartup(StartupEventArgs e)
@@ -106,6 +107,13 @@ public partial class App : System.Windows.Application
             _appVersion = typeof(App).Assembly.GetName().Version?.ToString() ?? "0.0.0";
             InitializeAnalytics(statsManager);
             InputMonitorService.Instance.StartMonitoring();
+
+            Console.WriteLine("Starting API service...");
+            _apiService = new ApiService();
+            _apiService.Start();
+
+            // 注册计划任务，供 PIM 守护程序静默拉起
+            EnsureScheduledTask();
 
             Console.WriteLine("Creating tray icon...");
             _trayIconViewModel = new TrayIconViewModel();
@@ -457,6 +465,7 @@ public partial class App : System.Windows.Application
             _trayIcon = null;
         }
         InputMonitorService.Instance.StopMonitoring();
+        _apiService?.Dispose();
         StatsManager.Instance.Dispose();
         ThemeManager.Instance.Dispose();
         _singleInstanceMutex?.ReleaseMutex();
@@ -563,6 +572,48 @@ public partial class App : System.Windows.Application
         }
 
         return string.Equals(left, right, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// 确保计划任务存在，供 PIM 守护程序以非管理员身份静默拉起本进程。
+    /// 任务以最高权限运行，开机登录时自动启动。
+    /// </summary>
+    private static void EnsureScheduledTask()
+    {
+        try
+        {
+            const string taskName = "PimKeyStats";
+
+            // 如果任务已存在，不做任何事
+            var check = Process.Start(new ProcessStartInfo("schtasks", $"/query /tn \"{taskName}\"")
+            {
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+            });
+            check?.WaitForExit(3000);
+            if (check?.ExitCode == 0) return;
+
+            var exePath = GetCurrentExecutablePath();
+            if (string.IsNullOrWhiteSpace(exePath)) return;
+
+            // 创建计划任务：开机登录时启动，以最高权限运行
+            var create = Process.Start(new ProcessStartInfo("schtasks",
+                $"/create /tn \"{taskName}\" /tr \"\\\"{exePath}\\\"\" /sc onlogon /rl highest /f")
+            {
+                CreateNoWindow = true,
+                UseShellExecute = false,
+            });
+            create?.WaitForExit(5000);
+
+            Console.WriteLine(create?.ExitCode == 0
+                ? "Scheduled task registered successfully."
+                : $"Failed to register scheduled task (exit code: {create?.ExitCode}). Run once as admin to register.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to register scheduled task: {ex.Message}");
+        }
     }
 
 #if DEBUG
