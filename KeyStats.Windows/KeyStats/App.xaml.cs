@@ -66,6 +66,17 @@ public partial class App : System.Windows.Application
         {
             Console.WriteLine("KeyStats starting...");
 
+            // Low-level input hooks and tray UI require an interactive user session.
+            // Session 0 (services) can bind the local API while never receiving input,
+            // which surfaces as permanent all-zero /api/stats for PIM.
+            var sessionId = Process.GetCurrentProcess().SessionId;
+            if (sessionId == 0 || !Environment.UserInteractive)
+            {
+                Console.WriteLine($"KeyStats refusing non-interactive session (SessionId={sessionId}, UserInteractive={Environment.UserInteractive}).");
+                Shutdown();
+                return;
+            }
+
             // Apply language preference BEFORE any UI loads.
             // StatsManager.Instance triggers settings.json load on first access.
             var preliminarySettings = StatsManager.Instance.Settings;
@@ -577,7 +588,7 @@ public partial class App : System.Windows.Application
 
     /// <summary>
     /// 确保计划任务存在，供 PIM 守护程序以非管理员身份静默拉起本进程。
-    /// 任务以最高权限运行，开机登录时自动启动。
+    /// 任务在用户登录会话中以普通权限运行，避免 Session 0 / 提权实例抢占 API。
     /// </summary>
     private static void EnsureScheduledTask()
     {
@@ -585,22 +596,13 @@ public partial class App : System.Windows.Application
         {
             const string taskName = "PimKeyStats";
 
-            // 如果任务已存在，不做任何事
-            var check = Process.Start(new ProcessStartInfo("schtasks", $"/query /tn \"{taskName}\"")
-            {
-                CreateNoWindow = true,
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-            });
-            check?.WaitForExit(3000);
-            if (check?.ExitCode == 0) return;
-
             var exePath = GetCurrentExecutablePath();
             if (string.IsNullOrWhiteSpace(exePath)) return;
 
-            // 创建计划任务：开机登录时启动，以最高权限运行
+            // Recreate each time so older /rl highest tasks are corrected.
+            // /rl limited keeps the process in the interactive user session.
             var create = Process.Start(new ProcessStartInfo("schtasks",
-                $"/create /tn \"{taskName}\" /tr \"\\\"{exePath}\\\"\" /sc onlogon /rl highest /f")
+                $"/create /tn \"{taskName}\" /tr \"\\\"{exePath}\\\"\" /sc onlogon /rl limited /f")
             {
                 CreateNoWindow = true,
                 UseShellExecute = false,
@@ -608,7 +610,7 @@ public partial class App : System.Windows.Application
             create?.WaitForExit(5000);
 
             Console.WriteLine(create?.ExitCode == 0
-                ? "Scheduled task registered successfully."
+                ? "Scheduled task registered successfully (limited rights, onlogon)."
                 : $"Failed to register scheduled task (exit code: {create?.ExitCode}). Run once as admin to register.");
         }
         catch (Exception ex)
